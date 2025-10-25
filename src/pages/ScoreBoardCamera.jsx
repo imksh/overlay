@@ -5,8 +5,8 @@ import SixAnimation from "../animations/six.json";
 import OutAnimation from "../animations/out.json";
 import { api } from "../util/axios";
 
-function Scoreboard() {
-    const initialData = {
+function ScoreboardCamera() {
+  const initialData = {
     batsman1: { name: "-", runs: 0, balls: 0 },
     batsman2: { name: "-", runs: 0, balls: 0 },
     team1: "Team 1",
@@ -24,24 +24,43 @@ function Scoreboard() {
   const [show6, setShow6] = useState(false);
   const [showOut, setShowOut] = useState(false);
 
+  const videoRef = useRef(null);
+
+  // Camera setup
+  useEffect(() => {
+    async function setupCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+      }
+    }
+    setupCamera();
+  }, []);
+
   // Fetch data initially
   useEffect(() => {
-  const getScore = async () => {
-    try {
-      const res = await api.get("/overlay/get-score");
-      setData(res.data);
-    } catch (error) {
-      console.log("Error fetching score: ", error);
-    }
-  };
+    const getScore = async () => {
+      try {
+        const res = await api.get("/overlay/get-score");
+        setData(res.data);
+      } catch (error) {
+        console.log("Error fetching score: ", error);
+      }
+    };
 
-  getScore(); // run once immediately
+    getScore(); // run once immediately
 
-  // fetch every 2 seconds
-  const interval = setInterval(getScore, 2000);
+    // fetch every 2 seconds
+    const interval = setInterval(getScore, 2000);
 
-  return () => clearInterval(interval); // cleanup
-}, []);
+    return () => clearInterval(interval); // cleanup
+  }, []);
 
   // Watch for triggers
   useEffect(() => {
@@ -72,9 +91,27 @@ function Scoreboard() {
 
   return (
     <>
-    <div className="fixed top-5 right-5 rounded-full">
-        <img src="/images/logo.png" alt="logo" style={{width:75,aspectRatio:1,borderRadius:"50%"}}/>
-    </div>
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          zIndex: 0,
+        }}
+      />
+
+      <div className="fixed top-5 right-5 rounded-full">
+        <img
+          src="/images/logo.png"
+          alt="logo"
+          style={{ width: 75, aspectRatio: 1, borderRadius: "50%" }}
+        />
+      </div>
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 md:w-3/4 bg-white rounded-lg shadow-lg flex justify-between items-center px-4 py-2 text-black font-sans">
         {/* Batsmen */}
         <div className="flex flex-col">
@@ -109,7 +146,9 @@ function Scoreboard() {
             <span>
               {data.bowler.wicket}-{data.bowler.run}
             </span>
-            <span>{data.bowler.over}.{data.bowler.ball} overs</span>
+            <span>
+              {data.bowler.over}.{data.bowler.ball} overs
+            </span>
           </div>
         )}
       </div>
@@ -164,4 +203,4 @@ function Scoreboard() {
   );
 }
 
-export default Scoreboard;
+export default ScoreboardCamera;
