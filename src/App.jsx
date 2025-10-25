@@ -1,13 +1,19 @@
-import React from "react";
+import React from 'react'
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import Scoreboard from "./pages/Scoreboard";
+import { Home } from './pages/Home';
 
-function App() {
+const App = () => {
   return (
-    <div className="relative w-full h-screen">
-      <div className="absolute bottom-0 py-5 px-10 bg-red-700">
-        <h2>Hello</h2>
-      </div>
-    </div>
-  );
+    <div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/scoreboard" element={<Scoreboard />} />
+    </Routes>
+    <Toaster />
+  </div>
+  )
 }
 
-export default App;
+export default App
