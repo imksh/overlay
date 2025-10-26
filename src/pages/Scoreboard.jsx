@@ -5,7 +5,7 @@ import SixAnimation from "../animations/six.json";
 import OutAnimation from "../animations/out.json";
 import { api } from "../util/axios";
 
-function Scoreboard() {
+export default function Scoreboard() {
   const initialData = {
     batsman1: { name: "-", runs: 0, balls: 0 },
     batsman2: { name: "-", runs: 0, balls: 0 },
@@ -17,41 +17,36 @@ function Scoreboard() {
     isFour: false,
     isSix: false,
     isOut: false,
-    // isOverCompleted: false,
-    showLive:"",
-    bowler: { name: "-", wickets: 0, runs: 0, overs: 0 },
+    showLive: "",
+    inning:"",
+    bowler: { name: "-", wicket: 0, run: 0, over: 0, ball: 0 },
   };
+
   const [data, setData] = useState(initialData);
   const [show4, setShow4] = useState(false);
   const [show6, setShow6] = useState(false);
   const [showOut, setShowOut] = useState(false);
   const [showLive, setShowLive] = useState("");
 
-
-  // Fetch data initially
   useEffect(() => {
     const getScore = async () => {
       try {
         const res = await api.get("/overlay/get-score");
         setData(res.data);
-      } catch (error) {
-        console.log("Error fetching score: ", error);
+      } catch (err) {
+        console.log("Error fetching score:", err);
       }
     };
 
-    getScore(); // run once immediately
-
-    // fetch every 2 seconds
+    getScore();
     const interval = setInterval(getScore, 2000);
-
-    return () => clearInterval(interval); // cleanup
+    return () => clearInterval(interval);
   }, []);
 
-  // Watch for triggers
   useEffect(() => {
     if (data.isFour) {
       setShow4(true);
-      const t = setTimeout(() => setShow4(false), 2000);
+      const t = setTimeout(() => setShow4(false), 1800);
       return () => clearTimeout(t);
     }
   }, [data.isFour]);
@@ -59,7 +54,7 @@ function Scoreboard() {
   useEffect(() => {
     if (data.isSix) {
       setShow6(true);
-      const t = setTimeout(() => setShow6(false), 2000);
+      const t = setTimeout(() => setShow6(false), 1800);
       return () => clearTimeout(t);
     }
   }, [data.isSix]);
@@ -67,16 +62,14 @@ function Scoreboard() {
   useEffect(() => {
     if (data.isOut) {
       setShowOut(true);
-      const t = setTimeout(() => setShowOut(false), 2000);
+      const t = setTimeout(() => setShowOut(false), 1800);
       return () => clearTimeout(t);
     }
   }, [data.isOut]);
 
-
-
   useEffect(() => {
-    if (data.showLive !=="") {
-      setShowLive(data.showLive );
+    if (data.showLive !== "") {
+      setShowLive(data.showLive);
       const t = setTimeout(() => setShowLive(""), 3000);
       return () => clearTimeout(t);
     }
@@ -86,68 +79,99 @@ function Scoreboard() {
 
   return (
     <>
-      <div className="fixed top-5 right-5 rounded-full">
+     
+      <div className="fixed top-2 right-2 rounded-full z-20">
         <img
           src="/images/logo.png"
           alt="logo"
-          style={{ width: 75, aspectRatio: 1, borderRadius: "50%" }}
+          style={{
+            width: 50,
+            height: 50,
+            borderRadius: "50%",
+          }}
         />
       </div>
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 md:w-3/4 bg-white rounded-lg shadow-lg flex justify-between items-center px-4 py-1 text-black font-sans ">
-        {/* Batsmen */}
-        <div className="flex flex-col">
-          {batsmen.map(
-            (b, idx) =>
-              b && (
-                <div key={idx} className="flex justify-between w-40">
-                  <span className="font-bold">{b.name}</span>
-                  <span>
-                    {b.runs} ({b.balls})
+
+     
+      <div
+        className="fixed bottom-2 left-1/2 -translate-x-1/2 w-[96%] rounded-2xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.3)]"
+        style={{
+          background:
+            "linear-gradient(90deg, #0b1c47 0%, #032869 100%)",
+          color: "#fff",
+          fontFamily: "sans-serif",
+        }}
+      >
+        <div className="flex items-center justify-between text-xs md:text-sm font-semibold ">
+         
+          <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:w-[20%] lg:w-[16%]">
+            <div>
+              <h2 className="text-base md:text-lg font-bold tracking-wider">
+                {data.inning === 2 ? data.team2 : data.team1}
+              </h2>
+              <p className="text-[10px] opacity-70">{data.over} overs</p>
+            </div>
+            <div className="text-3xl md:text-4xl font-extrabold text-[#ff8200]">
+              {data.score}
+            </div>
+          </div>
+
+         
+          <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
+            
+            <div className="flex flex-col justify-center w-full">
+              {batsmen.map((b, i) => (
+                
+                <div
+                  key={i}
+                  className="flex justify-between text-[11px] md:text-[13px] py-[2px]"
+                >
+                    <span style={!b.isStriker?{opacity:0}:{}} className="mr-2" >🏏</span>
+                  <span className="tracking-wide truncate w-full">
+                    {b.name}
+                  </span>
+                  <span className="font-bold">
+                    {b.runs}
+                    <span className="text-[10px] opacity-75">
+                      ({b.balls})
+                    </span>
                   </span>
                 </div>
-              )
+              ))}
+            </div>
+            {/* VS Team2 */}
+            <div className="ml-3 flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap w-[20%] text-center bg-[#0a1a3f] py-4">
+              vs {data.inning === 2 ? data.team1: data.team2}
+            </div>
+          </div>
+
+          {/* Right: Bowler info */}
+          {data.bowler && (
+            <div className="flex flex-col justify-center px-4 py-3 bg-[#0a1a3f] min-w-[120px] text-right md:w-[20%] ">
+              <div className="flex justify-between md:justify-center gap-3 text-[11px] md:text-[13px] mb-1 ">
+                <span>{data.bowler.name}</span>
+                <span>
+                  {data.bowler.wicket}-{data.bowler.run}
+                  <span className="text-[10px] opacity-75 ml-1">
+                    {data.bowler.over}.{data.bowler.ball}
+                  </span>
+                </span>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Team & Score */}
-        <div className="flex flex-col items-center bg-blue-600 text-white rounded-lg px-4 py-1">
-          <div className="text-sm">
-            {data.team1} v {data.team2}
-          </div>
-          <div className="text-xl font-bold">{data.score}</div>
-          <div className="text-xs">
-            Overs: {data.over} | Run Rate: {data.runRate}
-          </div>
-        </div>
-
-        {/* Bowler */}
-        {data.bowler && (
-          <div className="flex flex-col items-end w-32">
-            <span className="font-bold">{data.bowler.name}</span>
-            <span>
-              {data.bowler.wicket}-{data.bowler.run}
-            </span>
-            <span>
-              {data.bowler.over}.{data.bowler.ball} overs
-            </span>
-          </div>
-        )}
+        {/* Accent bottom line */}
+        <div className="h-[3px] bg-gradient-to-r from-[#ff8200] to-[#ffc400]" />
       </div>
 
-      {/* Lottie animations */}
+      {/* Animations */}
       {show4 && (
         <Lottie
           animationData={FourAnimation}
           loop={false}
           autoplay
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 999,
-          }}
+          className="fixed top-0 left-0 w-screen h-screen z-[999]"
         />
       )}
       {show6 && (
@@ -155,14 +179,7 @@ function Scoreboard() {
           animationData={SixAnimation}
           loop={false}
           autoplay
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 999,
-          }}
+          className="fixed top-0 left-0 w-screen h-screen z-[999]"
         />
       )}
       {showOut && (
@@ -170,54 +187,25 @@ function Scoreboard() {
           animationData={OutAnimation}
           loop={false}
           autoplay
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 999,
-          }}
+          className="fixed top-0 left-0 w-screen h-screen z-[999]"
         />
       )}
 
-      {showLive === "logo"  && (
-        <div>
-          <img
-            src="/images/logo.png"
-            alt="logo"
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              width: "400px",
-              transform: "translate(-50%, -50%)",
-              aspectRatio:1,
-              zIndex: 999,
-              borderRadius:"50%"
-            }}
-          />
-        </div>
+      {/* Live logos */}
+      {showLive === "logo" && (
+        <img
+          src="/images/logo.png"
+          alt="logo"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-w-[250px] rounded-full z-[999]"
+        />
       )}
-
       {showLive === "jsMobile" && (
-        <div>
-          <img
-            src="/images/jsMobile.png"
-            alt="logo"
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              width: "40%",
-              transform: "translate(-50%, -50%)",
-              zIndex: 999,
-            }}
-          />
-        </div>
+        <img
+          src="/images/jsMobile.png"
+          alt="jsMobile"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-[680px] z-[999]"
+        />
       )}
     </>
   );
 }
-
-export default Scoreboard;

@@ -24,14 +24,14 @@ export const Home = () => {
           onClick={() => navigate("/scoreboard")}
           className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-lg font-semibold transition"
         >
-          Open Scoreboard
+          Design 1
         </button>
 
         <button
-          onClick={() => navigate("/scoreboard-mobile")}
+          onClick={() => navigate("/scoreboard2")}
           className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-lg font-semibold transition"
         >
-          Open Mobile Scoreboard
+          Design 2
         </button>
       </div>
 
