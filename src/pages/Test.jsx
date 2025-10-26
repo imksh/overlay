@@ -219,7 +219,14 @@ export default function Test() {
         <img
           src="/images/jsMobile.png"
           alt="jsMobile"
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-[280px] z-[999]"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-[580px] z-[999]"
+        />
+      )}
+      {showLive === "msMobile" && (
+        <img
+          src="/images/msMobile.png"
+          alt="jsMobile"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-[580px] z-[999]"
         />
       )}
     </>
