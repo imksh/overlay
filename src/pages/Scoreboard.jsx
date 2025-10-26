@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Lottie from "lottie-react";
 import FourAnimation from "../animations/four.json";
 import SixAnimation from "../animations/six.json";
@@ -6,7 +6,7 @@ import OutAnimation from "../animations/out.json";
 import { api } from "../util/axios";
 
 function Scoreboard() {
-    const initialData = {
+  const initialData = {
     batsman1: { name: "-", runs: 0, balls: 0 },
     batsman2: { name: "-", runs: 0, balls: 0 },
     team1: "Team 1",
@@ -17,31 +17,36 @@ function Scoreboard() {
     isFour: false,
     isSix: false,
     isOut: false,
+    // isOverCompleted: false,
+    showLive:"",
     bowler: { name: "-", wickets: 0, runs: 0, overs: 0 },
   };
   const [data, setData] = useState(initialData);
   const [show4, setShow4] = useState(false);
   const [show6, setShow6] = useState(false);
   const [showOut, setShowOut] = useState(false);
+  const [isOverCompleted, setIsOverCompleted] = useState(false);
+  const [showLive, setShowLive] = useState("");
+
 
   // Fetch data initially
   useEffect(() => {
-  const getScore = async () => {
-    try {
-      const res = await api.get("/overlay/get-score");
-      setData(res.data);
-    } catch (error) {
-      console.log("Error fetching score: ", error);
-    }
-  };
+    const getScore = async () => {
+      try {
+        const res = await api.get("/overlay/get-score");
+        setData(res.data);
+      } catch (error) {
+        console.log("Error fetching score: ", error);
+      }
+    };
 
-  getScore(); // run once immediately
+    getScore(); // run once immediately
 
-  // fetch every 2 seconds
-  const interval = setInterval(getScore, 2000);
+    // fetch every 2 seconds
+    const interval = setInterval(getScore, 2000);
 
-  return () => clearInterval(interval); // cleanup
-}, []);
+    return () => clearInterval(interval); // cleanup
+  }, []);
 
   // Watch for triggers
   useEffect(() => {
@@ -68,14 +73,35 @@ function Scoreboard() {
     }
   }, [data.isOut]);
 
+  // useEffect(() => {
+  //   if (data.isOverCompleted) {
+  //     setIsOverCompleted(true);
+  //     const t = setTimeout(() => setIsOverCompleted(false), 2000);
+  //     return () => clearTimeout(t);
+  //   }
+  // }, [data.isOverCompleted]);
+
+
+  useEffect(() => {
+    if (data.showLive !=="") {
+      setShowLive(data.showLive );
+      const t = setTimeout(() => setShowLive(""), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [data.showLive]);
+
   const batsmen = [data.batsman1, data.batsman2];
 
   return (
     <>
-    <div className="fixed top-5 right-5 rounded-full">
-        <img src="/images/logo.png" alt="logo" style={{width:75,aspectRatio:1,borderRadius:"50%"}}/>
-    </div>
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 md:w-3/4 bg-white rounded-lg shadow-lg flex justify-between items-center px-4 py-2 text-black font-sans">
+      <div className="fixed top-5 right-5 rounded-full">
+        <img
+          src="/images/logo.png"
+          alt="logo"
+          style={{ width: 75, aspectRatio: 1, borderRadius: "50%" }}
+        />
+      </div>
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 md:w-3/4 bg-white rounded-lg shadow-lg flex justify-between items-center px-4 py-1 text-black font-sans ">
         {/* Batsmen */}
         <div className="flex flex-col">
           {batsmen.map(
@@ -109,7 +135,9 @@ function Scoreboard() {
             <span>
               {data.bowler.wicket}-{data.bowler.run}
             </span>
-            <span>{data.bowler.over}.{data.bowler.ball} overs</span>
+            <span>
+              {data.bowler.over}.{data.bowler.ball} overs
+            </span>
           </div>
         )}
       </div>
@@ -159,6 +187,42 @@ function Scoreboard() {
             zIndex: 999,
           }}
         />
+      )}
+
+      {isOverCompleted || showLive === "logo"  && (
+        <div>
+          <img
+            src="/images/logo.png"
+            alt="logo"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              width: "400px",
+              transform: "translate(-50%, -50%)",
+              aspectRatio:1,
+              zIndex: 999,
+              borderRadius:"50%"
+            }}
+          />
+        </div>
+      )}
+
+      {showLive === "jsMobile" && (
+        <div>
+          <img
+            src="/images/jsMobile.png"
+            alt="logo"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              width: "40%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 999,
+            }}
+          />
+        </div>
       )}
     </>
   );
