@@ -25,7 +25,6 @@ function Scoreboard() {
   const [show4, setShow4] = useState(false);
   const [show6, setShow6] = useState(false);
   const [showOut, setShowOut] = useState(false);
-  const [isOverCompleted, setIsOverCompleted] = useState(false);
   const [showLive, setShowLive] = useState("");
 
 
@@ -73,13 +72,6 @@ function Scoreboard() {
     }
   }, [data.isOut]);
 
-  // useEffect(() => {
-  //   if (data.isOverCompleted) {
-  //     setIsOverCompleted(true);
-  //     const t = setTimeout(() => setIsOverCompleted(false), 2000);
-  //     return () => clearTimeout(t);
-  //   }
-  // }, [data.isOverCompleted]);
 
 
   useEffect(() => {
@@ -189,7 +181,7 @@ function Scoreboard() {
         />
       )}
 
-      {isOverCompleted || showLive === "logo"  && (
+      {showLive === "logo"  && (
         <div>
           <img
             src="/images/logo.png"
