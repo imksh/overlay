@@ -13,12 +13,14 @@ export default function Scoreboard() {
     team2: "Team 2",
     score: "0-0",
     over: "0.0",
+    target: "",
+    remainingBalls: "",
     runRate: 0,
     isFour: false,
     isSix: false,
     isOut: false,
     showLive: "",
-    inning:"",
+    inning: "",
     bowler: { name: "-", wicket: 0, run: 0, over: 0, ball: 0 },
   };
 
@@ -79,7 +81,6 @@ export default function Scoreboard() {
 
   return (
     <>
-     
       <div className="fixed top-2 right-2 rounded-full z-20">
         <img
           src="/images/logo.png"
@@ -92,18 +93,15 @@ export default function Scoreboard() {
         />
       </div>
 
-     
       <div
         className="fixed bottom-2 left-1/2 -translate-x-1/2 w-[96%] rounded-2xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.3)]"
         style={{
-          background:
-            "linear-gradient(90deg, #0b1c47 0%, #032869 100%)",
+          background: "linear-gradient(90deg, #0b1c47 0%, #032869 100%)",
           color: "#fff",
           fontFamily: "sans-serif",
         }}
       >
         <div className="flex items-center justify-between text-xs md:text-sm font-semibold ">
-         
           <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:w-[20%] lg:w-[16%]">
             <div>
               <h2 className="text-base md:text-lg font-bold tracking-wider">
@@ -116,32 +114,50 @@ export default function Scoreboard() {
             </div>
           </div>
 
-         
           <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
-            
             <div className="flex flex-col justify-center w-full">
               {batsmen.map((b, i) => (
-                
                 <div
                   key={i}
                   className="flex justify-between text-[11px] md:text-[13px] py-[2px]"
                 >
-                    <span style={!b.isStriker?{opacity:0}:{}} className="mr-2" >🏏</span>
+                  <span
+                    style={!b.isStriker ? { opacity: 0 } : {}}
+                    className="mr-2"
+                  >
+                    🏏
+                  </span>
                   <span className="tracking-wide truncate w-full">
                     {b.name}
                   </span>
                   <span className="font-bold">
                     {b.runs}
-                    <span className="text-[10px] opacity-75">
-                      ({b.balls})
-                    </span>
+                    <span className="text-[10px] opacity-75">({b.balls})</span>
                   </span>
                 </div>
               ))}
             </div>
+            {data.inning === 2 && (
+                <>
+                <div className="ml-3 flex-col flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap text-center  bg-[#0a1a3f] py-4 px-2 md:px-8">
+                  <p>Target</p>
+                  <p>{data.target}</p>
+                </div>
+          
+              <div className="ml-3 flex-col flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap min-w-[15%] text-left  py-4 px-2">
+                <p>
+                  To win: <span className="text-[#ff8200]">{data.target-parseInt(data.score.split("-")[0], 10)}</span>{" "}
+                  runs
+                </p>
+                <p>
+                  From: <span>{data.remainingBalls}</span> balls
+                </p>
+              </div>
+              </>
+            )}
             {/* VS Team2 */}
-            <div className="ml-3 flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap w-[20%] text-center bg-[#0a1a3f] py-4">
-              vs {data.inning === 2 ? data.team1: data.team2}
+            <div className="ml-3 flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap min-w-[20%] text-center bg-[#0a1a3f] py-4">
+              vs {data.inning === 2 ? data.team1 : data.team2}
             </div>
           </div>
 
@@ -203,7 +219,7 @@ export default function Scoreboard() {
         <img
           src="/images/jsMobile.png"
           alt="jsMobile"
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-[680px] z-[999]"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-[280px] z-[999]"
         />
       )}
     </>
