@@ -3,6 +3,8 @@ import Lottie from "lottie-react";
 import FourAnimation from "../animations/four.json";
 import SixAnimation from "../animations/six.json";
 import OutAnimation from "../animations/out.json";
+import TrophyAnimation from "../animations/trophy.json";
+import CelebrateAnimation from "../animations/celebrate.json";
 import { api } from "../util/axios";
 
 export default function Scoreboard() {
@@ -16,9 +18,7 @@ export default function Scoreboard() {
     target: "",
     remainingBalls: "",
     runRate: 0,
-    isFour: false,
-    isSix: false,
-    isOut: false,
+    run: "",
     showLive: "",
     inning: "",
     bowler: { name: "-", wicket: 0, run: 0, over: 0, ball: 0 },
@@ -29,6 +29,7 @@ export default function Scoreboard() {
   const [show6, setShow6] = useState(false);
   const [showOut, setShowOut] = useState(false);
   const [showLive, setShowLive] = useState("");
+  const [showWinner, setShowWinner] = useState(false);
 
   useEffect(() => {
     const getScore = async () => {
@@ -46,33 +47,35 @@ export default function Scoreboard() {
   }, []);
 
   useEffect(() => {
-    if (data.isFour) {
+    if (data.run === "four") {
       setShow4(true);
-      const t = setTimeout(() => setShow4(false), 1800);
+      const t = setTimeout(() => setShow4(false), 2000);
       return () => clearTimeout(t);
     }
-  }, [data.isFour]);
-
-  useEffect(() => {
-    if (data.isSix) {
+    if (data.run === "six") {
       setShow6(true);
-      const t = setTimeout(() => setShow6(false), 1800);
+      const t = setTimeout(() => setShow6(false), 2000);
       return () => clearTimeout(t);
     }
-  }, [data.isSix]);
+    if (data.run === "out") {
+      setShowOut(true);
+      const t = setTimeout(() => setShowOut(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [data.run, data.score]);
 
   useEffect(() => {
-    if (data.isOut) {
-      setShowOut(true);
-      const t = setTimeout(() => setShowOut(false), 1800);
+    if (data.inning > 2) {
+      setShowWinner(true);
+      const t = setTimeout(() => setShowWinner(false), 10000);
       return () => clearTimeout(t);
     }
-  }, [data.isOut]);
+  }, [data.inning]);
 
   useEffect(() => {
     if (data.showLive !== "") {
       setShowLive(data.showLive);
-      const t = setTimeout(() => setShowLive(""), 3000);
+      const t = setTimeout(() => setShowLive(""), 2000);
       return () => clearTimeout(t);
     }
   }, [data.showLive]);
@@ -102,7 +105,7 @@ export default function Scoreboard() {
         }}
       >
         <div className="flex items-center justify-between text-xs md:text-sm font-semibold ">
-          <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:w-[20%] lg:w-[16%]">
+          <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:min-w-[20%]">
             <div>
               <h2 className="text-base md:text-lg font-bold tracking-wider">
                 {data.inning === 2 ? data.team2 : data.team1}
@@ -113,53 +116,75 @@ export default function Scoreboard() {
               {data.score}
             </div>
           </div>
-
-          <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
-            <div className="flex flex-col justify-center w-full">
-              {batsmen.map((b, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between text-[11px] md:text-[13px] py-[2px]"
-                >
-                  <span
-                    style={!b.isStriker ? { opacity: 0 } : {}}
-                    className="mr-2"
+          {data.inning < 2 ? (
+            <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
+              <div className="flex flex-col justify-center w-full">
+                {batsmen.map((b, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between text-[11px] md:text-[13px] py-[2px]"
                   >
-                    🏏
-                  </span>
-                  <span className="tracking-wide truncate w-full">
-                    {b.name}
-                  </span>
-                  <span className="font-bold">
-                    {b.runs}
-                    <span className="text-[10px] opacity-75">({b.balls})</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-            {data.inning === 2 && (
-                <>
-                <div className="ml-3 flex-col flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap text-center  bg-[#0a1a3f] py-4 px-2 md:px-8">
-                  <p>Target</p>
-                  <p>{data.target}</p>
-                </div>
-          
-              <div className="ml-3 flex-col flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap min-w-[15%] text-left  py-4 px-2">
-                <p>
-                  To win: <span className="text-[#ff8200]">{data.target-parseInt(data.score.split("-")[0], 10)}</span>{" "}
-                  runs
-                </p>
-                <p>
-                  From: <span>{data.remainingBalls}</span> balls
-                </p>
+                    <span
+                      style={!b.isStriker ? { opacity: 0 } : {}}
+                      className="mr-2"
+                    >
+                      🏏
+                    </span>
+                    <span className="tracking-wide truncate w-full">
+                      {b.name}
+                    </span>
+                    <span className="font-bold">
+                      {b.runs}
+                      <span className="text-[10px] opacity-75">
+                        ({b.balls})
+                      </span>
+                    </span>
+                  </div>
+                ))}
               </div>
-              </>
-            )}
-            {/* VS Team2 */}
-            <div className="ml-3 flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap min-w-[20%] text-center bg-[#0a1a3f] py-4">
-              vs {data.inning === 2 ? data.team1 : data.team2}
+              {data.inning === 2 && (
+                <>
+                  <div className="ml-3 flex-col flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap text-center  bg-[#0a1a3f] py-4 px-2 md:px-8">
+                    <p>Target</p>
+                    <p>{data.target}</p>
+                  </div>
+
+                  <div className="ml-3 flex-col flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap min-w-[15%] text-left  py-4 px-2">
+                    <p>
+                      To win:{" "}
+                      <span className="text-[#ff8200]">
+                        {data.target - parseInt(data.score.split("-")[0], 10) >
+                        0
+                          ? data.target - parseInt(data.score.split("-")[0], 10)
+                          : 0}
+                      </span>{" "}
+                      runs
+                    </p>
+                    <p>
+                      From: <span>{data.remainingBalls}</span> balls
+                    </p>
+                  </div>
+                </>
+              )}
+              {/* VS Team2 */}
+              <div className="ml-3 flex-shrink-0 text-[11px] md:text-[13px] font-semibold text-gray-300 whitespace-nowrap min-w-[20%] text-center bg-[#0a1a3f] py-4">
+                vs {data.inning === 2 ? data.team1 : data.team2}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-3xl md:text-4xl font-extrabold text-[#ff8200]">
+              {data.target > parseInt(data.score.split("-")[0], 10)
+                ? data.team1
+                : data.team2}{" "}
+              is Winner
+              <Lottie
+                animationData={CelebrateAnimation}
+                loop={true}
+                autoplay
+                className="fixed top-0 left-0 w-screen h-screen z-[999]"
+              />
+            </div>
+          )}
 
           {/* Right: Bowler info */}
           {data.bowler && (
@@ -205,6 +230,22 @@ export default function Scoreboard() {
           autoplay
           className="fixed top-0 left-0 w-screen h-screen z-[999]"
         />
+      )}
+
+      {showWinner && (
+        <>
+          <Lottie
+            animationData={TrophyAnimation}
+            loop={false}
+            autoplay
+            className="fixed top-0 left-0 w-screen h-screen z-[999]"
+          />
+          <div className="text-3xl fixed top-10 left-[50%] translate-x-[-50%] md:text-4xl font-extrabold text-[#ff8200]">
+            {data.target > parseInt(data.score.split("-")[0], 10)
+              ? data.team1
+              : data.team2}
+          </div>
+        </>
       )}
 
       {/* Live logos */}
