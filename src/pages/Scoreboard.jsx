@@ -116,7 +116,7 @@ export default function Scoreboard() {
               {data.score}
             </div>
           </div>
-          {data.inning < 2 ? (
+          {data.inning <= 2 ? (
             <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
               <div className="flex flex-col justify-center w-full">
                 {batsmen.map((b, i) => (
