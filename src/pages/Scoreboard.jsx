@@ -108,7 +108,7 @@ export default function Scoreboard() {
           <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:min-w-[20%]">
             <div>
               <h2 className="text-base md:text-lg font-bold tracking-wider">
-                {data.inning === 2 ? data.team2 : data.team1}
+                {data.inning === 1 ? data.team1 : data.team2}
               </h2>
               <p className="text-[10px] opacity-70">{data.over} overs</p>
             </div>
