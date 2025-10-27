@@ -5,6 +5,8 @@ import SixAnimation from "../animations/six.json";
 import OutAnimation from "../animations/out.json";
 import TrophyAnimation from "../animations/trophy.json";
 import CelebrateAnimation from "../animations/celebrate.json";
+import WideAnimation from "../animations/wide.json";
+import BatBallAnimation from "../animations/batBall.json";
 import { api } from "../util/axios";
 
 export default function Scoreboard() {
@@ -28,8 +30,10 @@ export default function Scoreboard() {
   const [show4, setShow4] = useState(false);
   const [show6, setShow6] = useState(false);
   const [showOut, setShowOut] = useState(false);
+  const [showWide, setShowWide] = useState(false);
   const [showLive, setShowLive] = useState("");
   const [showWinner, setShowWinner] = useState(false);
+  const [showScoreCelebrate, setShowScoreCelebrate] = useState(false);
 
   useEffect(() => {
     const getScore = async () => {
@@ -62,7 +66,21 @@ export default function Scoreboard() {
       const t = setTimeout(() => setShowOut(false), 2000);
       return () => clearTimeout(t);
     }
+    if (data.run === "wide") {
+      setShowWide(true);
+      const t = setTimeout(() => setShowWide(false), 2000);
+      return () => clearTimeout(t);
+    }
   }, [data.run, data.score]);
+
+  useEffect(() => {
+    if (data.run === "wide" || data.run === "six" || data.run === "four" || data.run === "nb") {
+      setShowScoreCelebrate(true);
+      const t = setTimeout(() => setShowScoreCelebrate(false), 6000);
+      return () => clearTimeout(t);
+    }
+  }, [data.run,data.score])
+  
 
   useEffect(() => {
     if (data.inning > 2) {
@@ -77,6 +95,17 @@ export default function Scoreboard() {
       setShowLive(data.showLive);
       const t = setTimeout(() => setShowLive(""), 2000);
       return () => clearTimeout(t);
+    }
+  }, [data.showLive]);
+
+  useEffect(() => {
+    if (data.showLive === "") {
+      setShowLive("");
+      setShowWinner(false);
+      setShowWide(false);
+      setShowOut(false);
+      setShow6(false);
+      setShow4(false);
     }
   }, [data.showLive]);
 
@@ -104,11 +133,19 @@ export default function Scoreboard() {
           fontFamily: "sans-serif",
         }}
       >
+        {showScoreCelebrate && (
+          <Lottie
+            animationData={CelebrateAnimation}
+            loop={true}
+            autoplay
+            className="fixed top-0 left-0 w-screen h-screen z-[999]"
+          />
+        )}
         <div className="flex items-center justify-between text-xs md:text-sm font-semibold ">
           <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:min-w-[20%]">
             <div>
               <h2 className="text-base md:text-lg font-bold tracking-wider">
-                {data.inning === 1 ? data.team1 : data.team2}
+                {data.inning === 2 ? data.team2 : data.team1}
               </h2>
               <p className="text-[10px] opacity-70">{data.over} overs</p>
             </div>
@@ -116,7 +153,7 @@ export default function Scoreboard() {
               {data.score}
             </div>
           </div>
-          {data.inning <= 2 ? (
+          {data.inning < 2 ? (
             <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
               <div className="flex flex-col justify-center w-full">
                 {batsmen.map((b, i) => (
@@ -232,6 +269,15 @@ export default function Scoreboard() {
         />
       )}
 
+      {showWide && (
+        <Lottie
+          animationData={WideAnimation}
+          loop={false}
+          autoplay
+          className="fixed top-0 left-0 w-screen h-screen z-[999]"
+        />
+      )}
+
       {showWinner && (
         <>
           <Lottie
@@ -248,7 +294,39 @@ export default function Scoreboard() {
         </>
       )}
 
-      {/* Live logos */}
+      {showLive === "trophy" && (
+        <>
+          <Lottie
+            animationData={TrophyAnimation}
+            loop={false}
+            autoplay
+            className="fixed top-0 left-0 w-screen h-screen z-[999]"
+          />
+        </>
+      )}
+
+      {showLive === "celebrate" && (
+        <>
+          <Lottie
+            animationData={CelebrateAnimation}
+            loop={true}
+            autoplay
+            className="fixed top-0 left-0 w-screen h-screen z-[999]"
+          />
+        </>
+      )}
+
+      {showLive === "batBall" && (
+        <>
+          <Lottie
+            animationData={BatBallAnimation}
+            loop={true}
+            autoplay
+            className="fixed top-0 left-0 w-screen h-screen z-[999]"
+          />
+        </>
+      )}
+
       {showLive === "logo" && (
         <img
           src="/images/logo.png"
