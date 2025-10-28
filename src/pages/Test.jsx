@@ -74,9 +74,9 @@ export default function Test() {
   }, [data.run, data.score]);
 
   useEffect(() => {
-    if (data.run === "wide" || data.run === "six" || data.run === "four" || data.run === "nb") {
+    if ( data.run === "six" || data.run === "four" || data.run === "nb") {
       setShowScoreCelebrate(true);
-      const t = setTimeout(() => setShowScoreCelebrate(false), 6000);
+      const t = setTimeout(() => setShowScoreCelebrate(false), 2000);
       return () => clearTimeout(t);
     }
   }, [data.run,data.score])
@@ -145,7 +145,7 @@ export default function Test() {
           <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1a3f] md:min-w-[20%]">
             <div>
               <h2 className="text-base md:text-lg font-bold tracking-wider">
-                {data.inning === 2 ? data.team2 : data.team1} Challengers
+                {data.inning === 2 ? data.team2 : data.team1} 
               </h2>
               <p className="text-[10px] opacity-70">{data.over} overs</p>
             </div>
@@ -153,7 +153,7 @@ export default function Test() {
               {data.score}
             </div>
           </div>
-          {data.inning < 2 ? (
+          {data.inning <= 2 ? (
             <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#0f2459] flex-grow border-l border-blue-800 border-r">
               <div className="flex flex-col justify-center w-full">
                 {batsmen.map((b, i) => (
